@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ vehicule.marque }} {{ vehicule.modele }} - FleetTrack</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/fleet/">FleetTrack</a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="/fleet/">Dashboard</a>
+                <a class="nav-link" href="/fleet/vehicules/">Véhicules</a>
+                <a class="nav-link" href="/fleet/missions/">Missions</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <h1>{{ vehicule.marque }} {{ vehicule.modele }}</h1>
+        <p class="text-muted">Immatriculation: {{ vehicule.immatriculation }}</p>
+        
+        <div class="row">
+            <!-- Informations du véhicule -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Informations du véhicule</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Marque:</strong> {{ vehicule.marque }}</p>
+                        <p><strong>Modèle:</strong> {{ vehicule.modele }}</p>
+                        <p><strong>Immatriculation:</strong> {{ vehicule.immatriculation }}</p>
+                        <p><strong>Date mise en service:</strong> {{ vehicule.date_mise_en_service }}</p>
+                        <p><strong>Kilométrage:</strong> {{ vehicule.kilometrage_actuel }} km</p>
+                        <p><strong>Carburant:</strong> {{ vehicule.get_carburant_type_display }}</p>
+                        <p><strong>Statut:</strong> 
+                            <span class="badge 
+                                {% if vehicule.statut == 'disponible' %}bg-success
+                                {% elif vehicule.statut == 'en_mission' %}bg-warning
+                                {% else %}bg-danger{% endif %}">
+                                {{ vehicule.get_statut_display }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Positions GPS récentes -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5>Positions GPS récentes</h5>
+                        <a href="/fleet/vehicules/{{ vehicule.id }}/position/" class="btn btn-sm btn-primary">Ajouter position</a>
+                    </div>
+                    <div class="card-body">
+                        {% for position in positions %}
+                        <div class="border-bottom py-2">
+                            <small class="text-muted">{{ position.timestamp }}</small><br>
+                            <strong>Lat:</strong> {{ position.latitude }}, 
+                            <strong>Lon:</strong> {{ position.longitude }}
+                            {% if position.vitesse %}
+                            - <strong>Vitesse:</strong> {{ position.vitesse }} km/h
+                            {% endif %}
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">Aucune position enregistrée</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Historique maintenance -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Historique de maintenance</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for maintenance in maintenances %}
+                        <div class="border-bottom py-2">
+                            <strong>{{ maintenance.get_type_maintenance_display }}</strong> 
+                            - {{ maintenance.date_maintenance }}
+                            - {{ maintenance.kilometrage }} km
+                            - {{ maintenance.cout }} €
+                            <br>
+                            <small class="text-muted">{{ maintenance.description }}</small>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">Aucune maintenance enregistrée</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <a href="/fleet/vehicules/" class="btn btn-secondary">Retour à la liste</a>
+        </div>
+    </div>
+</body>
+</html>

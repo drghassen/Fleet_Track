@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - FleetTrack{% endblock %}
+
+{% block content %}
+<style>
+    .dashboard-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 16px;
+        overflow: hidden;
+        background: white;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+    .stat-card {
+        transition: all 0.3s ease;
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    .stat-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    .fade-in {
+        animation: fadeIn 0.6s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .modern-btn {
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    .modern-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    #map {
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    @media (max-width: 768px) {
+        .row > div {
+            margin-bottom: 20px;
+        }
+        .stat-card h5 {
+            font-size: 1.5rem;
+        }
+    }
+    @media (max-width: 576px) {
+        h1 {
+            font-size: 1.8rem;
+            text-align: center;
+        }
+        .modern-btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+</style>
+<div class="container-fluid fade-in">
+    <h1 class="mb-4 text-center fw-bold" style="color: #333; font-size: 2.5rem;">Dashboard FleetTrack</h1>
+
+    <!-- Statistiques en temps réel -->
+    <div class="row mb-5" id="stats-row">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card text-white stat-card h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                    <i class="fas fa-car fa-2x mb-2"></i>
+                    <h5 class="card-title fw-bold" id="vehicules-count">{{ vehicules_count }}</h5>
+                    <p class="card-text mb-0">Véhicules</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card text-white stat-card h-100" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                    <i class="fas fa-user-tie fa-2x mb-2"></i>
+                    <h5 class="card-title fw-bold" id="chauffeurs-count">{{ chauffeurs_count }}</h5>
+                    <p class="card-text mb-0">Chauffeurs</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card text-white stat-card h-100" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                    <i class="fas fa-route fa-2x mb-2"></i>
+                    <h5 class="card-title fw-bold" id="missions-count">{{ missions_count }}</h5>
+                    <p class="card-text mb-0">Missions</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card text-white stat-card h-100" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center text-center">
+                    <i class="fas fa-clock fa-2x mb-2"></i>
+                    <h5 class="card-title fw-bold" id="missions-encours-count">{{ missions_encours|length }}</h5>
+                    <p class="card-text mb-0">Missions en cours</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <!-- Carte interactive -->
+        <div class="col-lg-8">
+            <div class="card dashboard-card h-100">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="mb-0 fw-semibold" style="color: #333;"><i class="fas fa-map-marker-alt me-2"></i>Carte des véhicules</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div id="map" style="height: 450px; border-radius: 0 0 16px 16px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Véhicules en mission -->
+        <div class="col-lg-4">
+            <div class="card dashboard-card h-100">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="mb-0 fw-semibold" style="color: #333;"><i class="fas fa-truck me-2"></i>Véhicules en mission</h5>
+                </div>
+                <div class="card-body py-3" id="missions-encours" style="max-height: 450px; overflow-y: auto;">
+                    {% for mission in missions_encours %}
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-3 px-2 rounded">
+                        <div>
+                            <strong class="d-block text-dark">{{ mission.vehicule.marque }} {{ mission.vehicule.modele }}</strong>
+                            <small class="text-muted">{{ mission.chauffeur.user.get_full_name }}</small>
+                        </div>
+                        <span class="badge bg-warning rounded-pill px-3 py-2">En cours</span>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <p class="text-muted">Aucun véhicule en mission</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphiques -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-6">
+            <div class="card dashboard-card h-100">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="mb-0 fw-semibold" style="color: #333;"><i class="fas fa-chart-pie me-2"></i>Statuts des véhicules</h5>
+                </div>
+                <div class="card-body p-4">
+                    <canvas id="vehicleStatusChart" data-disponible="{{ vehicules_disponible|default:0 }}" data-en-mission="{{ vehicules_en_mission|default:0 }}" data-maintenance="{{ vehicules_maintenance|default:0 }}" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card dashboard-card h-100">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="mb-0 fw-semibold" style="color: #333;"><i class="fas fa-euro-sign me-2"></i>Coûts de maintenance</h5>
+                </div>
+                <div class="card-body p-4">
+                    <canvas id="maintenanceCostChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card dashboard-card">
+                <div class="card-header bg-transparent border-0 py-3">
+                    <h5 class="mb-0 fw-semibold" style="color: #333;"><i class="fas fa-bolt me-2"></i>Actions rapides</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-lg-3 col-md-6">
+                            <a href="{% url 'vehicule_list' %}" class="btn btn-primary modern-btn w-100">
+                                <i class="fas fa-car me-2"></i>Gérer les véhicules
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <a href="{% url 'mission_list' %}" class="btn btn-success modern-btn w-100">
+                                <i class="fas fa-route me-2"></i>Voir les missions
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <a href="{% url 'admin:index' %}" class="btn btn-secondary modern-btn w-100">
+                                <i class="fas fa-cog me-2"></i>Administration
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <button class="btn btn-info modern-btn w-100" onclick="generateReport()">
+                                <i class="fas fa-file-pdf me-2"></i>Générer rapport PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<script>
+    // WebSocket pour données en temps réel
+    const ws = new WebSocket('ws://' + window.location.host + '/ws/dashboard/');
+
+    ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        updateDashboard(data);
+    };
+
+    function updateDashboard(data) {
+        document.getElementById('vehicules-count').textContent = data.vehicules_count;
+        document.getElementById('chauffeurs-count').textContent = data.chauffeurs_count;
+        document.getElementById('missions-count').textContent = data.missions_count;
+        document.getElementById('missions-encours-count').textContent = data.missions_encours.length;
+
+        const missionsContainer = document.getElementById('missions-encours');
+        missionsContainer.innerHTML = data.missions_encours.map(mission => `
+            <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                <div>
+                    <strong>${mission.vehicule}</strong>
+                    <br>
+                    <small>${mission.chauffeur}</small>
+                </div>
+                <span class="badge bg-warning">En cours</span>
+            </div>
+        `).join('') || '<p class="text-muted">Aucun véhicule en mission</p>';
+
+        // Update map markers if positions data is available
+        if (data.vehicules_with_positions) {
+            updateMapMarkers(data.vehicules_with_positions);
+        }
+
+        // Update chart data dynamically
+        if (data.vehicules_disponible !== undefined && data.vehicules_en_mission !== undefined && data.vehicules_maintenance !== undefined) {
+            updateChartData(data.vehicules_disponible, data.vehicules_en_mission, data.vehicules_maintenance);
+        }
+    }
+
+    // Carte Leaflet
+    const map = L.map('map').setView([48.8566, 2.3522], 10); // Paris par défaut
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    let markers = {}; // Store markers by vehicle ID
+
+    function updateMapMarkers(vehiculesWithPositions) {
+        // Clear existing markers
+        Object.values(markers).forEach(marker => map.removeLayer(marker));
+        markers = {};
+
+        // Add markers for all vehicles
+        vehiculesWithPositions.forEach(item => {
+            const vehicule = item.vehicule;
+            const position = item.position;
+            const lat = position ? position.latitude : 48.8566; // Default Paris
+            const lng = position ? position.longitude : 2.3522;
+
+            const marker = L.marker([lat, lng]).addTo(map)
+                .bindPopup(`${vehicule.marque} ${vehicule.modele} - ${vehicule.statut.charAt(0).toUpperCase() + vehicule.statut.slice(1)}`);
+
+            markers[vehicule.id] = marker;
+        });
+    }
+
+    // Initial markers from template data
+    const initialVehicules = JSON.parse('{{ vehicules_with_positions_json|default:"[]"|escapejs }}');
+    updateMapMarkers(initialVehicules);
+
+    // Graphiques Chart.js - Modern options
+    const vehicleStatusCanvas = document.getElementById('vehicleStatusChart');
+    const vehicleStatusCtx = vehicleStatusCanvas.getContext('2d');
+    let vehicleStatusChart;
+
+    function createChart(disponible, enMission, maintenance) {
+        vehicleStatusChart = new Chart(vehicleStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Disponible', 'En mission', 'En maintenance'],
+                datasets: [{
+                    data: [disponible, enMission, maintenance],
+                    backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { family: 'Inter' } }
+                    }
+                }
+            }
+        });
+    }
+
+    function updateChartData(disponible, enMission, maintenance) {
+        if (vehicleStatusChart) {
+            vehicleStatusChart.data.datasets[0].data = [disponible, enMission, maintenance];
+            vehicleStatusChart.update();
+        }
+    }
+
+    // Initial chart creation
+    const disponible = parseInt(vehicleStatusCanvas.getAttribute('data-disponible')) || 0;
+    const enMission = parseInt(vehicleStatusCanvas.getAttribute('data-en-mission')) || 0;
+    const maintenance = parseInt(vehicleStatusCanvas.getAttribute('data-maintenance')) || 0;
+    createChart(disponible, enMission, maintenance);
+
+    const maintenanceCostCtx = document.getElementById('maintenanceCostChart').getContext('2d');
+    new Chart(maintenanceCostCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+            datasets: [{
+                label: 'Coûts de maintenance (€)',
+                data: [1200, 1900, 3000, 500, 2000, 1000], // Données d'exemple
+                backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                borderColor: '#667eea',
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.1)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: { font: { family: 'Inter' } }
+                }
+            }
+        }
+    });
+
+    // Fonction pour générer un rapport PDF (à implémenter côté serveur)
+    function generateReport() {
+        window.location.href = '/fleet/generate-report/';
+    }
+</script>
+{% endblock %}

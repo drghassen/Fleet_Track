@@ -1,0 +1,289 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "username": "admin",
+      "first_name": "",
+      "last_name": "",
+      "email": "admin@example.com",
+      "password": "pbkdf2_sha256$600000$examplehash",
+      "is_staff": true,
+      "is_active": true,
+      "is_superuser": true,
+      "last_login": null,
+      "date_joined": "2023-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "fleet_track.chauffeur",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "date_embauche": "2023-01-01",
+      "permis_numero": "123456789",
+      "telephone": "+33123456789"
+    }
+  },
+  {
+    "model": "fleet_track.vehicule",
+    "pk": 1,
+    "fields": {
+      "marque": "Renault",
+      "modele": "Clio",
+      "immatriculation": "AA-123-BB",
+      "date_mise_en_service": "2020-01-01",
+      "kilometrage_actuel": 50000,
+      "carburant_type": "essence",
+      "statut": "disponible"
+    }
+  },
+  {
+    "model": "fleet_track.vehicule",
+    "pk": 2,
+    "fields": {
+      "marque": "Peugeot",
+      "modele": "208",
+      "immatriculation": "BB-456-CC",
+      "date_mise_en_service": "2019-06-15",
+      "kilometrage_actuel": 75000,
+      "carburant_type": "diesel",
+      "statut": "en_mission"
+    }
+  },
+  {
+    "model": "fleet_track.vehicule",
+    "pk": 3,
+    "fields": {
+      "marque": "Tesla",
+      "modele": "Model 3",
+      "immatriculation": "CC-789-DD",
+      "date_mise_en_service": "2021-03-20",
+      "kilometrage_actuel": 25000,
+      "carburant_type": "electrique",
+      "statut": "maintenance"
+    }
+  },
+  {
+    "model": "fleet_track.mission",
+    "pk": 1,
+    "fields": {
+      "vehicule": 1,
+      "chauffeur": 1,
+      "date_debut": "2023-10-01T08:00:00Z",
+      "date_fin": "2023-10-01T18:00:00Z",
+      "lieu_depart": "Paris",
+      "lieu_arrivee": "Lyon",
+      "statut": "terminee"
+    }
+  },
+  {
+    "model": "fleet_track.mission",
+    "pk": 2,
+    "fields": {
+      "vehicule": 2,
+      "chauffeur": 1,
+      "date_debut": "2023-10-15T09:00:00Z",
+      "date_fin": null,
+      "lieu_depart": "Marseille",
+      "lieu_arrivee": "Nice",
+      "statut": "en_cours"
+    }
+  },
+  {
+    "model": "fleet_track.positiongps",
+    "pk": 1,
+    "fields": {
+      "vehicule": 1,
+      "latitude": 48.8566,
+      "longitude": 2.3522,
+      "timestamp": "2023-10-15T10:00:00Z",
+      "vitesse": 50.0
+    }
+  },
+  {
+    "model": "fleet_track.positiongps",
+    "pk": 2,
+    "fields": {
+      "vehicule": 2,
+      "latitude": 43.2965,
+      "longitude": 5.3698,
+      "timestamp": "2023-10-15T10:00:00Z",
+      "vitesse": 60.0
+    }
+  },
+  {
+    "model": "fleet_track.maintenance",
+    "pk": 1,
+    "fields": {
+      "vehicule": 1,
+      "type_maintenance": "vidange",
+      "date_maintenance": "2023-09-01",
+      "kilometrage": 48000,
+      "cout": 120.50,
+      "description": "Vidange complète avec changement de filtre"
+    }
+  },
+  {
+    "model": "fleet_track.maintenance",
+    "pk": 2,
+    "fields": {
+      "vehicule": 3,
+      "type_maintenance": "pneus",
+      "date_maintenance": "2023-09-15",
+      "kilometrage": 24000,
+      "cout": 400.00,
+      "description": "Changement des 4 pneus"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+      "username": "driver1",
+      "first_name": "Jean",
+      "last_name": "Dupont",
+      "email": "jean.dupont@example.com",
+      "password": "pbkdf2_sha256$600000$examplehash",
+      "is_staff": false,
+      "is_active": true,
+      "is_superuser": false,
+      "last_login": null,
+      "date_joined": "2023-02-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "fleet_track.chauffeur",
+    "pk": 2,
+    "fields": {
+      "user": 2,
+      "date_embauche": "2023-02-01",
+      "permis_numero": "987654321",
+      "telephone": "+33987654321"
+    }
+  },
+  {
+    "model": "fleet_track.vehicule",
+    "pk": 4,
+    "fields": {
+      "marque": "Citroën",
+      "modele": "C3",
+      "immatriculation": "DD-101-EE",
+      "date_mise_en_service": "2018-11-10",
+      "kilometrage_actuel": 90000,
+      "carburant_type": "essence",
+      "statut": "maintenance"
+    }
+  },
+  {
+    "model": "fleet_track.vehicule",
+    "pk": 5,
+    "fields": {
+      "marque": "Volkswagen",
+      "modele": "Golf",
+      "immatriculation": "EE-202-FF",
+      "date_mise_en_service": "2017-05-22",
+      "kilometrage_actuel": 120000,
+      "carburant_type": "diesel",
+      "statut": "disponible"
+    }
+  },
+  {
+    "model": "fleet_track.vehicule",
+    "pk": 6,
+    "fields": {
+      "marque": "BMW",
+      "modele": "X3",
+      "immatriculation": "FF-303-GG",
+      "date_mise_en_service": "2022-01-15",
+      "kilometrage_actuel": 15000,
+      "carburant_type": "diesel",
+      "statut": "en_mission"
+    }
+  },
+  {
+    "model": "fleet_track.vehicule",
+    "pk": 7,
+    "fields": {
+      "marque": "Ford",
+      "modele": "Focus",
+      "immatriculation": "GG-404-HH",
+      "date_mise_en_service": "2016-08-30",
+      "kilometrage_actuel": 140000,
+      "carburant_type": "essence",
+      "statut": "maintenance"
+    }
+  },
+  {
+    "model": "fleet_track.mission",
+    "pk": 3,
+    "fields": {
+      "vehicule": 5,
+      "chauffeur": 2,
+      "date_debut": "2023-10-20T07:00:00Z",
+      "date_fin": "2023-10-20T17:00:00Z",
+      "lieu_depart": "Toulouse",
+      "lieu_arrivee": "Bordeaux",
+      "statut": "terminee"
+    }
+  },
+  {
+    "model": "fleet_track.mission",
+    "pk": 4,
+    "fields": {
+      "vehicule": 6,
+      "chauffeur": 1,
+      "date_debut": "2023-10-25T08:30:00Z",
+      "date_fin": null,
+      "lieu_depart": "Lille",
+      "lieu_arrivee": "Strasbourg",
+      "statut": "en_cours"
+    }
+  },
+  {
+    "model": "fleet_track.positiongps",
+    "pk": 3,
+    "fields": {
+      "vehicule": 5,
+      "latitude": 43.6045,
+      "longitude": 1.4442,
+      "timestamp": "2023-10-20T12:00:00Z",
+      "vitesse": 80.0
+    }
+  },
+  {
+    "model": "fleet_track.positiongps",
+    "pk": 4,
+    "fields": {
+      "vehicule": 6,
+      "latitude": 50.6292,
+      "longitude": 3.0573,
+      "timestamp": "2023-10-25T09:00:00Z",
+      "vitesse": 70.0
+    }
+  },
+  {
+    "model": "fleet_track.maintenance",
+    "pk": 3,
+    "fields": {
+      "vehicule": 4,
+      "type_maintenance": "freins",
+      "date_maintenance": "2023-10-10",
+      "kilometrage": 88000,
+      "cout": 250.00,
+      "description": "Changement des plaquettes de frein avant"
+    }
+  },
+  {
+    "model": "fleet_track.maintenance",
+    "pk": 4,
+    "fields": {
+      "vehicule": 7,
+      "type_maintenance": "moteur",
+      "date_maintenance": "2023-10-05",
+      "kilometrage": 135000,
+      "cout": 800.00,
+      "description": "Réparation du système d'échappement"
+    }
+  }
+]
