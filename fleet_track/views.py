@@ -10,6 +10,8 @@ from django.db.models import Q
 import json
 from .models import *
 from .forms import *
+from django.core.paginator import Paginator
+
 
 def dashboard(request):
     vehicules = Vehicule.objects.all()
@@ -64,36 +66,43 @@ def dashboard(request):
 def vehicule_list(request):
     vehicules = Vehicule.objects.all()
     search_form = VehiculeSearchForm(request.GET)
-    
+
     if search_form.is_valid():
         search = search_form.cleaned_data.get('search')
         statut = search_form.cleaned_data.get('statut')
         carburant_type = search_form.cleaned_data.get('carburant_type')
         kilometrage_min = search_form.cleaned_data.get('kilometrage_min')
         kilometrage_max = search_form.cleaned_data.get('kilometrage_max')
-        
+
         if search:
             vehicules = vehicules.filter(
                 Q(marque__icontains=search) |
                 Q(modele__icontains=search) |
                 Q(immatriculation__icontains=search)
             )
-        
+
         if statut:
             vehicules = vehicules.filter(statut=statut)
-        
+
         if carburant_type:
             vehicules = vehicules.filter(carburant_type=carburant_type)
-        
+
         if kilometrage_min is not None:
             vehicules = vehicules.filter(kilometrage_actuel__gte=kilometrage_min)
-        
+
         if kilometrage_max is not None:
             vehicules = vehicules.filter(kilometrage_actuel__lte=kilometrage_max)
-    
+
+    # ➤ Pagination (5 éléments par page)
+    paginator = Paginator(vehicules, 5)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'vehicules/list.html', {
-        'vehicules': vehicules,
-        'search_form': search_form
+        'vehicules': page_obj,      # remplacer la liste brute
+        'page_obj': page_obj,
+        'paginator': paginator,
+        'search_form': search_form,
     })
 
 def vehicule_detail(request, id):
@@ -108,6 +117,49 @@ def vehicule_detail(request, id):
     })
 
 def mission_list(request):
+    missions = Mission.objects.all().order_by('-date_debut')
+    search_form = MissionSearchForm(request.GET)
+
+    if search_form.is_valid():
+        search = search_form.cleaned_data.get('search')
+        vehicule = search_form.cleaned_data.get('vehicule')
+        chauffeur = search_form.cleaned_data.get('chauffeur')
+        statut = search_form.cleaned_data.get('statut')
+        date_debut_min = search_form.cleaned_data.get('date_debut_min')
+        date_debut_max = search_form.cleaned_data.get('date_debut_max')
+
+        if search:
+            missions = missions.filter(
+                Q(lieu_depart__icontains=search) |
+                Q(lieu_arrivee__icontains=search)
+            )
+
+        if vehicule:
+            missions = missions.filter(vehicule=vehicule)
+
+        if chauffeur:
+            missions = missions.filter(chauffeur=chauffeur)
+
+        if statut:
+            missions = missions.filter(statut=statut)
+
+        if date_debut_min:
+            missions = missions.filter(date_debut__gte=date_debut_min)
+
+        if date_debut_max:
+            missions = missions.filter(date_debut__lte=date_debut_max)
+
+    # ➤ Pagination (5 missions par page)
+    paginator = Paginator(missions, 5)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'mission/list.html', {
+        'missions': page_obj,
+        'page_obj': page_obj,
+        'paginator': paginator,
+        'search_form': search_form,
+    })
     missions = Mission.objects.all().order_by('-date_debut')
     search_form = MissionSearchForm(request.GET)
     
@@ -144,6 +196,7 @@ def mission_list(request):
         'missions': missions,
         'search_form': search_form
     })
+
 
 def ajouter_position(request, vehicule_id):
     vehicule = get_object_or_404(Vehicule, id=vehicule_id)

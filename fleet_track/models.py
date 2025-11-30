@@ -19,11 +19,33 @@ class Vehicule(models.Model):
         ('maintenance', 'En maintenance')
     ], default='disponible')
 
+    def __str__(self):
+        return f"{self.marque} {self.modele} - {self.immatriculation}"
+    marque = models.CharField(max_length=50)
+    modele = models.CharField(max_length=50)
+    immatriculation = models.CharField(max_length=20, unique=True)
+    date_mise_en_service = models.DateField()
+    kilometrage_actuel = models.IntegerField(default=0)
+    carburant_type = models.CharField(max_length=20, choices=[
+        ('essence', 'Essence'),
+        ('diesel', 'Diesel'),
+        ('electrique', 'Électrique')
+    ])
+    statut = models.CharField(max_length=20, choices=[
+        ('disponible', 'Disponible'),
+        ('en_mission', 'En mission'),
+        ('maintenance', 'En maintenance')
+    ], default='disponible')
+
 class Chauffeur(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     date_embauche = models.DateField()
     permis_numero = models.CharField(max_length=50)
     telephone = models.CharField(max_length=20)
+
+    def __str__(self):
+        return f"{self.user.first_name} {self.user.last_name}"
+
 
 class Mission(models.Model):
     vehicule = models.ForeignKey(Vehicule, on_delete=models.CASCADE)
@@ -38,6 +60,10 @@ class Mission(models.Model):
         ('terminee', 'Terminée'),
         ('annulee', 'Annulée')
     ], default='planifiee')
+
+    def __str__(self):
+        return f"Mission {self.vehicule} → {self.chauffeur}"
+
 
 class PositionGPS(models.Model):
     vehicule = models.ForeignKey(Vehicule, on_delete=models.CASCADE)

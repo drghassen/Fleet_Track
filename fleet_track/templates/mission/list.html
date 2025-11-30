@@ -76,8 +76,7 @@
                         {% for mission in missions %}
                         <tr>
                             <td>
-                                <strong>{{ mission.vehicule.marque }} {{ mission.vehicule.modele }}</strong>
-                                <br>
+                                <strong>{{ mission.vehicule.marque }} {{ mission.vehicule.modele }}</strong><br>
                                 <small class="text-muted">{{ mission.vehicule.immatriculation }}</small>
                             </td>
                             <td>
@@ -105,6 +104,44 @@
                         {% endfor %}
                     </tbody>
                 </table>
+
+                <!-- PAGINATION -->
+                <nav>
+                    <ul class="pagination justify-content-center mt-4">
+
+                        {% if missions.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">« Premier</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ missions.previous_page_number }}">‹ Précédent</a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in missions.paginator.page_range %}
+                            {% if missions.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > missions.number|add:-3 and num < missions.number|add:3 %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if missions.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ missions.next_page_number }}">Suivant ›</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ missions.paginator.num_pages }}">Dernier »</a>
+                            </li>
+                        {% endif %}
+
+                    </ul>
+                </nav>
+
                 {% else %}
                 <div class="text-center py-4">
                     <h5 class="text-muted">Aucune mission enregistrée</h5>
@@ -113,11 +150,12 @@
                 </div>
                 {% endif %}
                 
-                <div class="mt-3">
-                    <a href="/fleet/" class="btn btn-secondary">Retour au Dashboard</a>
-                </div>
+                
             </div>
         </div>
+        <div class="mt-3">
+                   
+                </div>
     </div>
 </body>
 </html>
